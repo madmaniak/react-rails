@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem "browserify-rails", "~> 0.3"
 gem 'haml'
 gem 'react-rails', '~> 0.9.0.0'
 
