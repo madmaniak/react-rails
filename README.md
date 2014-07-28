@@ -31,3 +31,7 @@ https://github.com/facebook/flux
 # Conclusion
 
 Looks wierd. Needs further investigation.
+
+# Code
+
+https://github.com/madmaniak/react-rails/tree/master/app/assets/javascripts
