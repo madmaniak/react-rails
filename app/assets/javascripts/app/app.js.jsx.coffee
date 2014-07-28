@@ -1,9 +1,29 @@
 ###* @jsx React.DOM ###
 
+_catalog = [
+    {id:1, title: 'Widget #1', cost: 1},
+    {id:2, title: 'Widget #2', cost: 2},
+    {id:3, title: 'Widget #3', cost: 3}
+  ]
+
+_cartItems = []
+
+_increaseItem = (index) ->
+  _cartItems[index].qty++
+
+_addItem = (item) ->
+  if(!item.inCart)
+    item['qty'] = 1
+    item['inCart'] = true
+    _cartItems.push(item)
+  else
+    _cartItems.forEach (cartItem, i)->
+      if(cartItem.id == item.id)
+        _increaseItem(i)
+
+
 @AppConstants =
   ADD_ITEM: 'ADD_ITEM'
-
-CHANGE_EVENT = 'change'
 
 @AppDispatcher = copyProperties new Dispatcher(),
   handleViewAction: (action) ->
@@ -11,17 +31,63 @@ CHANGE_EVENT = 'change'
       source: 'VIEW_ACTION'
       action: action
 
+CHANGE_EVENT = 'change'
+
+@AppStore = copyProperties new EventEmitter(),
+  emitChange: ->
+    @emit CHANGE_EVENT
+
+  addChangeListener: (callback) ->
+    @on CHANGE_EVENT, callback
+
+  removeChangeListener: (callback) ->
+    @removeListener CHANGE_EVENT, callback
+
+  getCart: -> _cartItems
+
+  getCatalog: -> _catalog
+
+  dispatcherIndex: AppDispatcher.register (payload) ->
+    action = payload.action
+
+    switch action.actionType
+      when AppConstants.ADD_ITEM
+        _addItem(payload.action.item)
+
+    AppStore.emitChange()
+
 @AppActions =
   addItem: (item) ->
     AppDispatcher.handleViewAction
       actionType: AppConstants.ADD_ITEM
       item: item
 
-@APP = React.createClass
+@AddToCart = React.createClass
   handleClick: ->
-    AppActions.addItem('this is the item')
+    AppActions.addItem @props.item
 
   render: ->
-    `<h1 onClick={this.handleClick}>My flux app</h1>`
+    `<button onClick={this.handleClick}>+</button>`
 
-React.renderComponent `<APP />`, document.body
+getCatalog = ->
+  items: AppStore.getCatalog()
+
+
+@Catalog = React.createClass
+  getInitialState: ->
+    getCatalog()
+
+  render: ->
+    items = @state.items.map (item) ->
+      `<tr>
+        <td>{item.title}</td>
+        <td>${item.cost}</td>
+        <td><AddToCart item={item} /></td>
+      </tr>`
+
+    `<table>
+      {items}
+    </table>
+    `
+
+React.renderComponent `<Catalog />`, document.body
