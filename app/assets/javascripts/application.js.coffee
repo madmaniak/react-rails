@@ -2,4 +2,4 @@
 #= require jquery_ujs
 #= require react
 #= require ./dependencies
-#= require_tree .
+#= require_tree ./app
